@@ -21,7 +21,17 @@ func NewUserService(_userRepository db.UserRepository) UserService {
 
 func (u *UserServiceImpl) GetUserById() error {
 	fmt.Println("fetching user in user service")
-	u.UserRepository.Create()
+	users, err :=u.UserRepository.GetAll()
+
+	if err != nil {
+		fmt.Println("Error fetching users", err)
+		return err
+	}
+	fmt.Println("Users fetched successfully")
+
+	for _, user:= range users {
+		fmt.Println(user)
+	}
 	return nil
 }
 

@@ -12,6 +12,8 @@ import (
 type UserRepository interface {
 	GetByID() (*models.User, error) // return user and error
 	Create() error
+	GetAll() ([]*models.User, error)
+	// DeleteByID(id int64)error
 }
 
 // implementation for user Implementation of struct
@@ -24,6 +26,48 @@ func NewUserRepository(_db *sql.DB) UserRepository {
 		db: _db,
 	}
 }
+
+func (u *UserRepositoryImpl) GetAll() ([]*models.User, error) {
+	fmt.Println("fetching user in user repository")
+
+	query := "SELECT id, username, email, password, created_at, updated_at FROM users"
+
+	// query function is used to execute a query that returns multiple rows like select
+	rows, err := u.db.Query(query)
+
+	if err != nil {
+		fmt.Println("Error fetching users", err)
+		return nil, err
+	}
+
+	// step 3: process this row and create output object
+	users := []*models.User{}
+	// next function is used to iterate over the rows returned by the query
+	for rows.Next() {
+		user := &models.User{}
+		err := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.Password,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
+		if err != nil {
+			fmt.Println("Error scanning user", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	fmt.Printf("Users fetched successfully: %d users found\n", len(users))
+	return users, nil
+}
+
+// func (u *UserRepositoryImpl) DeleteByID(id int64) error {
+// 	fmt.Println("deleting user in user repository")
+
+// 	return nil
+// }
 
 func (u *UserRepositoryImpl) Create() error {
 	fmt.Println("creating user in user repository")
